@@ -1,5 +1,5 @@
 import React, { useEffect, useState, } from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity, AsyncStorage,TextInput, Button, Alert} from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity,TextInput, Button, Alert} from 'react-native';
 import  Navigation from './components/Navigation';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import OnboardingScreen from './screens/OnboardingScreen';
@@ -18,8 +18,22 @@ const App = () =>{
   const [isLoggedIn,setIsLoggedIn] = React.useState(false);
   const [homeTodayScore, setHomeTodayScore] = React.useState(0);
   const[tempCode, setTempCode] = React.useState(null);
+  useEffect(()=>{
+    const getSessiontoken = async() => {
+      const sessionToken = await AsyncStorage.getItem('sessionToken');
+      console.log('token from storag' , sessionToken);
+      const validateResponse = await fetch('https://dev.stedi.me/validate/' + sessionToken);
 
-   if (isFirstLaunch == true){
+      if(validateResponse.status == 200){
+        const userEmail = await validateResponse.text();
+        console.log('useEmail', userEmail);
+        setIsLoggedIn(true);
+      }
+    }
+    getSessiontoken();
+  },[])
+
+   if (isFirstLaunch == true &&! isLoggedIn){
 return(
   <OnboardingScreen setFirstLaunch={setFirstLaunch}/>
  
@@ -79,16 +93,18 @@ return(
               }
             )
             console.log(loginResponse.status)
-            const loginToken = await loginResponse.text();
-            console.log('login token', sessionToken)
 
             if(loginResponse.status == 200){
             const sessionToken = await loginResponse.text();
             await AsyncStorage.setItem('sessiontoken', sessionToken)
-            console.log('Session Token', sessionToken)
+            console.log('Session Token', sessionToken);
+
+              AsyncStorage.setItem('sessionToken' , sessionToken)
+
             setIsLoggedIn(true);
             }
             else{
+              console.log("token resonce Status" , loginResponse.status)
               Alert.alert('Warning', 'An invalid Code was enteres')
             
             }
