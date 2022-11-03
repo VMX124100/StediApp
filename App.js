@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import OnboardingScreen from './screens/OnboardingScreen';
 import Home from './screens/Home';
 import { NavigationContainer } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 // import { DrawerContentS } from '@react-navigation/drawer';
 
 
@@ -65,8 +66,7 @@ return(
           onPress={async()=>{
             console.log('Button 2 was pressed')
 
-            const loginResponse=await fetch(
-              'https:dev.stedi.me/twofactorlogin',
+            const loginResponse=await fetch( 'https:dev.stedi.me/twofactorlogin',
               {
                 method: 'POST',
                 headers:{
@@ -79,9 +79,12 @@ return(
               }
             )
             console.log(loginResponse.status)
+            const loginToken = await loginResponse.text();
+            console.log('login token', sessionToken)
 
             if(loginResponse.status == 200){
             const sessionToken = await loginResponse.text();
+            await AsyncStorage.setItem('sessiontoken', sessionToken)
             console.log('Session Token', sessionToken)
             setIsLoggedIn(true);
             }
