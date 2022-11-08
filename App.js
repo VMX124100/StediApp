@@ -23,9 +23,10 @@ const App = () =>{
       const sessionToken = await AsyncStorage.getItem('sessionToken');
       console.log('token from storag' , sessionToken);
       const validateResponse = await fetch('https://dev.stedi.me/validate/' + sessionToken);
-
+      
       if(validateResponse.status == 200){
         const userEmail = await validateResponse.text();
+        await AsyncStorage.setItem('username', userEmail);
         console.log('useEmail', userEmail);
         setIsLoggedIn(true);
       }
@@ -56,7 +57,7 @@ return(
           onPress={async()=>{
             console.log('Button was pressed')
 
-            await fetch(
+            const sendTextResponse=await fetch(
               'https:dev.stedi.me/twofactorlogin/'+phoneNumber,
               {
                 method: 'POST',
@@ -65,6 +66,10 @@ return(
                 }
               }
             )
+            if (sendTextResponse.status!=200){
+              console.log('Server send text response: '+sendTextResponse.status);
+              alert('Communication Error', 'Server responded to send text with status: '+sendTextResponse.status)
+            }
           }}
         /> 
         <TextInput
@@ -96,17 +101,15 @@ return(
 
             if(loginResponse.status == 200){
             const sessionToken = await loginResponse.text();
-            await AsyncStorage.setItem('sessiontoken', sessionToken)
+            await AsyncStorage.setItem('sessionToken', sessionToken);
             console.log('Session Token', sessionToken);
-
-              AsyncStorage.setItem('sessionToken' , sessionToken)
-
+              AsyncStorage.setItem('sessionToken' , sessionToken);
             setIsLoggedIn(true);
             }
             else{
-              console.log("token resonce Status" , loginResponse.status)
+              console.log("token resonce Status" , loginResponse.status);
               Alert.alert('Warning', 'An invalid Code was enteres')
-            
+              setIsLoggedIn(false);
             }
           }}
         />     
