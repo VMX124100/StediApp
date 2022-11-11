@@ -4,23 +4,26 @@ import { StyleSheet, Text, View, Image, SafeAreaView , Share, ScrollView, Button
 import { Card, CardTitle, CardContent} from 'react-native-material-cards';
 import BarChart from 'react-native-bar-chart';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Camera } from 'expo-Camera';
+import { Camera } from 'expo-camera';
 // import Share from 'react-native-share';
 
 
 const Profile = (props) => {
   const [userName, setUserName] = useState('');
-  const [cameraPermision, setCameraPermission] = useState(false);
+  const [permission, requestPermission] = Camera.useCameraPermissions();
   const [profilePhoto, setProfillePhoto] = useState(null)
   const cameraref = useRef(null)
 
   useEffect(()=>{
 const getUserName = async ()=>{
-  const cameraPermission = await Camera.requestCameraPermissionsAsync();
-  setCameraPermission(cameraPermision);
+  // const cameraPermission = await Camera.requestCameraPermissionsAsync();
+  console.log('Camera permission', cameraPermission);
+  setCameraPermission(cameraPermission);
   const userName = await AsyncStorage.getItem('userName');
   setUserName(userName);
 };
+
+
 getUserName();
   },[]);
   const myCustomerShare = async() =>{
@@ -35,6 +38,20 @@ getUserName();
   console.log('Error', error)
       }
     }
+  if (!permission) {
+    // Camera permissions are still loading
+    return <View />;
+  }
+
+if (!permission.granted) {
+    // Camera permissions are not granted yet
+    return (
+      <View style={styles.container}>
+        <Text style={{ textAlign: 'center' }}>We need your permission to show the camera</Text>
+        <Button onPress={requestPermission} title="grant permission" />
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView style={{flex: 1}}>
