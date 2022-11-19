@@ -26,7 +26,7 @@ const App = () =>{
       
       if(validateResponse.status == 200){
         const userEmail = await validateResponse.text();
-        await AsyncStorage.setItem('username', userEmail);
+        await AsyncStorage.setItem('userName', userEmail);
         console.log('useEmail', userEmail);
         setIsLoggedIn(true);
       }
