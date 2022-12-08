@@ -21,13 +21,13 @@ const App = () =>{
   useEffect(()=>{
     const getSessiontoken = async() => {
       const sessionToken = await AsyncStorage.getItem('sessionToken');
-      console.log('token from storag' , sessionToken);
-      const validateResponse = await fetch('https://dev.stedi.me/validate/' + sessionToken);
+      console.log('token from storage' , sessionToken);
+      const validateResponse = await fetch('https://dev.stedi.me/validate/'+sessionToken);
       
       if(validateResponse.status == 200){
         const userEmail = await validateResponse.text();
         await AsyncStorage.setItem('userName', userEmail);
-        console.log('useEmail', userEmail);
+        console.log('userEmail', userEmail);
         setIsLoggedIn(true);
       }
     }

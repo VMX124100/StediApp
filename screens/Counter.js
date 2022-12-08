@@ -10,6 +10,7 @@ import { Card, CardTitle, CardContent, CardAction, CardButton, CardImage, button
 import exerciseImg from '../image/exercise2.png';
 import ProgressBar from 'react-native-progress/Bar';
 import { FontAwesome5 } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 // import { Ionicons} from 'react-native-vector-icons';
 // import { Button } from 'react-native-elements';
 // import { IconButton } from 'react-native-paper';
@@ -21,6 +22,15 @@ export default function Counter(props) {
  const [score, setScore] = useState(0);
 
  const [currentScreen, setCurrentScreen] = useState('counter');
+useEffect(()=>{
+  const getUsername = async ()=>{
+    userName.current=await AsyncStorage.getItem('userName');
+    console.log('counter userName', userName.current);
+  token.current = await AsyncStorage.getItem('sessionToken')
+console.log('counter token',token.current);
+  };
+    getUsername();
+},[]);
 useEffect(()=>{
   if (currentScreen == 'counter'){
     if (completionCount == 1){
@@ -68,6 +78,7 @@ const startTime = useRef(0);
 const stopTime = useRef(0);
 const testTime = useRef(0);
 const token = useRef("");
+const userName = useRef('');
 
 
 const savingSteps = async(event) =>{
@@ -92,8 +103,8 @@ stepPoints.length=30;
     const tokenResponse = await fetch('https://dev.stedi.me/login',{
   method: 'POST',
   body:JSON.stringify({
-    userName: "rom19010@byui.edu",
-    password:"Patricia2596@"
+    userName: "mar22111@byui.edu",
+    password: "uawdhahdffe",
   })
 });
 
@@ -106,7 +117,7 @@ await fetch('https://dev.stedi.me/rapidsteptest',{
    'suresteps.session.token': token.current
   },
   body:JSON.stringify({
-customer:'rom19010@byui.edu',
+customer:userName.current,
 startTime: startTime.current,
 stepPoints,
 stopTime: stopTime.current,
@@ -125,13 +136,14 @@ totalSteps:30
 const getResults = async () =>{
 
 try{
-  const scoreResponse = await fetch('https://dev.stedi.me/riskscore/rom19010@byui.edu',{
+  const scoreResponse = await fetch('https://dev.stedi.me/riskscore/'+ userName.current,{
   method:'GET',
   headers:{
     'Content-Type': 'application/json',
    'suresteps.session.token': token.current
   }
 })
+
 const scoreObject = await scoreResponse.json();
 console.log("score:",scoreObject.score);
 setScore(scoreObject.score);
@@ -140,7 +152,6 @@ props.setHomeTodayScore(scoreObject.score);
   console.log('error', error);
  }
 }
-
 
 //outcome of the saving data
 const outcome = () =>{
